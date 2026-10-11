@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مشروع: الغرفة الذكية لأطفال القمر</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor / FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Arabic Font (Cairo) -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Cairo"', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #1e293b 0%, #38bdf8 25%, #fbbf24 50%, #f97316 75%, #0f172a 100%);
+      border-radius: 9999px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3), 0 0 0 3px #0284c7;
+      transition: transform 0.1s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 0.4; }
+    }
+    .solar-pulse { animation: pulseGlow 3s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-sky-50 to-emerald-50 text-slate-800 min-h-screen antialiased flex flex-col font-sans">
+
+  <!-- Simple Header -->
+  <header class="w-full glass-panel sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center text-white shadow-md">
+        <i class="fa-solid fa-moon text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold text-slate-900 tracking-tight">مشروع: الغرفة الذكية لـ "أطفال القمر" <span class="text-sm font-semibold text-slate-500">(Enfants de la Lune)</span></h1>
+        <p class="text-sm text-slate-500 font-medium">مشروع إنترنت الأشياء (IoT) - أيهم محيمود</p>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-100 border border-emerald-200 text-emerald-800 text-sm font-bold shadow-sm">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> نموذج نشط (Prototype Active)
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="flex-1 w-full max-w-[1400px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- RIGHT: Controls and Presentation Info (5 cols) -->
+    <!-- In Arabic (RTL), we put the controls on the right side of the screen logically -->
+    <section class="lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- Interactive Dashboard -->
+      <div class="glass-panel rounded-3xl p-6 shadow-lg flex flex-col gap-6">
+        
+        <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+          <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-sky-500 ml-2"></i>لوحة التحكم (System Controls)</h2>
+          <!-- Auto/Manual Switch -->
+          <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button id="btnAutoMode" onclick="setSystemMode('auto')" class="px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-sky-600 shadow-sm transition-colors">
+              تلقائي (Auto)
+            </button>
+            <button id="btnManualMode" onclick="setSystemMode('manual')" class="px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">
+              يدوي (Manual)
+            </button>
+          </div>
+        </div>
+
+        <!-- Clock & Slider (Forced LTR so the clock slider moves left-to-right correctly) -->
+        <div class="bg-white/60 rounded-2xl p-5 border border-slate-200 shadow-sm" dir="ltr">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-sm font-bold text-slate-600">الوقت وتتبع الشمس (Time Slider)</span>
+            <div class="px-4 py-2 rounded-xl bg-slate-800 text-white font-mono text-2xl font-bold shadow-md">
+              <span id="digitalClockDisplay">12:00</span>
+            </div>
+          </div>
+          
+          <input type="range" id="timeSlider" min="0" max="1439" value="720" class="w-full cursor-pointer" oninput="onTimeSliderChange(this.value)">
+          
+          <div class="flex justify-between text-xs font-bold text-slate-400 mt-2 px-1">
+            <span>ليل (Night)</span>
+            <span>شروق</span>
+            <span class="text-amber-500">منتصف النهار</span>
+            <span>غروب</span>
+            <span>ليل</span>
+          </div>
+        </div>
+
+        <!-- Status Alerts -->
+        <div id="dangerBanner" class="hidden transition-all duration-300 rounded-2xl p-4 bg-rose-50 border-2 border-rose-400 shadow-sm flex items-start gap-4">
+          <div class="w-10 h-10 rounded-full bg-rose-500 text-white flex justify-center items-center text-xl shrink-0 animate-bounce">
+            <i class="fa-solid fa-sun"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-rose-800 text-lg">خطر: أشعة شمس قوية!</h4>
+            <p class="text-sm text-rose-700 mt-1">تم رصد أشعة الشمس. قام الذكاء الاصطناعي (AI) بإغلاق الستائر تلقائياً لحماية الغرفة.</p>
+          </div>
+        </div>
+
+        <div id="safeBanner" class="rounded-2xl p-4 bg-emerald-50 border-2 border-emerald-400 shadow-sm flex items-start gap-4">
+          <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex justify-center items-center text-xl shrink-0">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-emerald-800 text-lg">الغرفة آمنة الآن</h4>
+            <p class="text-sm text-emerald-700 mt-1">لا توجد أشعة شمس مباشرة. الستائر مفتوحة للتهوية الطبيعية.</p>
+          </div>
+        </div>
+
+        <!-- Manual Buttons (Hidden in Auto Mode) -->
+        <div id="manualControlsCard" class="hidden flex gap-3">
+          <button onclick="manualCurtain(false)" class="flex-1 py-3 rounded-xl font-bold bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-50 flex justify-center items-center">
+            <i class="fa-solid fa-door-open ml-2"></i> فتح إجباري (Force Open)
+          </button>
+          <button onclick="manualCurtain(true)" class="flex-1 py-3 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-900 shadow-md flex justify-center items-center">
+            <i class="fa-solid fa-lock ml-2"></i> إغلاق إجباري (Force Close)
+          </button>
+        </div>
+      </div>
+
+      <!-- Presentation Info Section -->
+      <div class="glass-panel rounded-3xl p-6 shadow-lg flex flex-col gap-4">
+        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-200 pb-2"><i class="fa-solid fa-clipboard-list text-emerald-500 ml-2"></i>عرض المشروع (Project Pitch)</h3>
+        
+        <div class="flex flex-col gap-3">
+          <div class="bg-white/60 p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 flex items-center"><i class="fa-solid fa-triangle-exclamation text-rose-500 ml-2"></i>1. المشكلة (The Problem)</h4>
+            <p class="text-sm text-slate-600 mt-1">
+              لا يمكن تعريض الأطفال المصابين بجفاف الجلد المصطبغ <strong>(Xeroderma Pigmentosum)</strong> للأشعة فوق البنفسجية <strong>(UV Light)</strong>. حتى بضع ثوانٍ من ضوء النهار عبر النافذة يمكن أن تسبب أضراراً جسيمة.
+            </p>
+          </div>
+
+          <div class="bg-white/60 p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 flex items-center"><i class="fa-solid fa-lightbulb text-amber-500 ml-2"></i>2. الفكرة (The Solution)</h4>
+            <p class="text-sm text-slate-600 mt-1">
+              غرفة ذكية تحمي الطفل تلقائياً. تستخدم مستشعرات <strong>(Light Sensors)</strong> لتتبع الشمس. بمجرد أن تكون الشمس ساطعة ومواجهة للنافذة، يقوم النظام تلقائياً بإغلاق الستائر وتشغيل إضاءة داخلية آمنة.
+            </p>
+          </div>
+
+          <div class="bg-white/60 p-4 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-slate-800 flex items-center"><i class="fa-solid fa-microchip text-sky-500 ml-2"></i>3. طريقة التنفيذ (Hardware Details)</h4>
+            <p class="text-sm text-slate-600 mt-1">
+              لبناء النموذج المصغر <strong>(Physical Prototype)</strong>، سنستخدم لوحة <strong>(Arduino Uno)</strong>، ومستشعر ضوء <strong>(LDR)</strong>، ومحرك <strong>(Servo Motor SG90)</strong> لسحب قماش عازل للضوء على نافذة مصغرة.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- LEFT: The Visual Simulation (7 cols) -->
+    <!-- Wrapped in LTR so the CSS positioning of the room elements doesn't break due to RTL -->
+    <section class="lg:col-span-7 flex flex-col gap-4" dir="ltr">
+      <div class="glass-panel rounded-3xl p-4 shadow-lg relative">
+        <div class="flex items-center justify-between mb-3 px-2 z-20 relative" dir="rtl">
+          <h2 class="text-sm font-bold text-slate-600 uppercase tracking-wider"><i class="fa-solid fa-eye ml-2"></i>محاكاة حية للنظام (Live Simulation)</h2>
+        </div>
+
+        <!-- Simulation Canvas -->
+        <div id="simulationStage" class="w-full h-[520px] rounded-2xl relative overflow-hidden transition-all duration-700 border border-slate-200 bg-sky-200 select-none">
+          
+          <!-- Sky & Stars -->
+          <div id="skyBackground" class="absolute inset-0 transition-colors duration-700 bg-gradient-to-b from-sky-300 via-sky-200 to-amber-100"></div>
+          <div id="starsLayer" class="absolute inset-0 opacity-0 transition-opacity duration-700 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]"></div>
+
+          <!-- Sun / Moon Entity -->
+          <div id="celestialBody" class="absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none" style="left: 120px; top: 280px;">
+            <div id="sunGraphic" class="relative flex items-center justify-center">
+              <div class="absolute w-20 h-20 rounded-full bg-amber-400/40 blur-xl solar-pulse"></div>
+              <div class="w-12 h-12 rounded-full bg-yellow-400 shadow-[0_0_25px_#f59e0b] flex items-center justify-center">
+                <i class="fa-solid fa-sun text-amber-700"></i>
+              </div>
+            </div>
+            <div id="moonGraphic" class="hidden relative flex items-center justify-center">
+              <div class="absolute w-16 h-16 rounded-full bg-sky-100/30 blur-lg"></div>
+              <div class="w-10 h-10 rounded-full bg-slate-100 shadow-[0_0_15px_#fff] flex items-center justify-center">
+                <i class="fa-solid fa-moon text-slate-400"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ground -->
+          <div class="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-emerald-800 to-emerald-600 z-0"></div>
+
+          <!-- ROOM CUT-THROUGH -->
+          <div class="absolute bottom-6 right-6 w-[560px] h-[390px] z-20">
+            <div class="absolute inset-0 rounded-2xl border-[8px] border-slate-700 bg-slate-100 shadow-2xl overflow-hidden">
+              
+              <!-- Safe Indoor Lighting -->
+              <div id="safeWarmGlow" class="absolute inset-0 bg-amber-400/20 opacity-0 transition-opacity duration-700 pointer-events-none z-15"></div>
+
+              <!-- Window & Curtains -->
+              <div class="absolute left-6 top-12 w-44 h-56 rounded-xl border-4 border-slate-600 bg-sky-200/50 shadow-inner overflow-hidden z-10">
+                <!-- Window crossbars -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none"><div class="w-full h-1.5 bg-slate-600"></div></div>
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none"><div class="h-full w-1.5 bg-slate-600"></div></div>
+                
+                <!-- Left & Right Curtains -->
+                <div id="curtainLeft" class="absolute top-0 bottom-0 left-0 w-0 bg-slate-800 border-r-2 border-amber-400/50 transition-all duration-700 ease-in-out z-25"></div>
+                <div id="curtainRight" class="absolute top-0 bottom-0 right-0 w-0 bg-slate-800 border-l-2 border-amber-400/50 transition-all duration-700 ease-in-out z-25"></div>
+              </div>
+
+              <!-- Floor -->
+              <div class="absolute bottom-0 inset-x-0 h-28 bg-amber-900/30 border-t-2 border-slate-400"></div>
+
+              <!-- Bed -->
+              <div class="absolute bottom-6 right-6 w-48 h-20 rounded-xl bg-sky-600 shadow-xl border-t-4 border-sky-400 z-20">
+                <div class="absolute right-4 top-2 w-12 h-8 rounded-lg bg-white shadow"></div>
+                <div class="absolute left-2 bottom-2 text-sky-200 text-xs font-bold" dir="rtl">سرير (Bed)</div>
+              </div>
+
+              <!-- Desk & Sensor -->
+              <div class="absolute bottom-6 left-52 w-40 h-24 flex flex-col justify-end z-20">
+                <div class="w-40 h-4 bg-slate-800 rounded-md shadow-lg flex justify-center items-start">
+                  <!-- Arduino Prototype Representation -->
+                  <div class="bg-slate-900 px-2 py-1 rounded-b text-[8px] text-emerald-400 border border-emerald-500 font-bold tracking-widest" dir="rtl">
+                    <i class="fa-solid fa-microchip ml-1"></i> مستشعر (LDR)
+                  </div>
+                </div>
+                <div class="flex justify-between w-40 px-2 h-20"><div class="w-2 h-full bg-slate-700"></div><div class="w-2 h-full bg-slate-700"></div></div>
+              </div>
+
+              <!-- Desk Lamp -->
+              <div class="absolute bottom-32 left-64 z-30 flex flex-col items-center">
+                <div class="w-6 h-5 bg-amber-200 rounded-t-full shadow flex justify-center items-center">
+                  <i class="fa-solid fa-lightbulb text-[10px] text-amber-500" id="lampBulbIcon"></i>
+                </div>
+                <div class="w-1 h-6 bg-slate-700"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // State management
+    const state = {
+      minutes: 720,
+      mode: 'auto',
+      curtainsClosed: true
+    };
+
+    // DOM Elements
+    const timeSlider = document.getElementById('timeSlider');
+    const digitalClockDisplay = document.getElementById('digitalClockDisplay');
+    const celestialBody = document.getElementById('celestialBody');
+    const sunGraphic = document.getElementById('sunGraphic');
+    const moonGraphic = document.getElementById('moonGraphic');
+    const skyBackground = document.getElementById('skyBackground');
+    const starsLayer = document.getElementById('starsLayer');
+    const curtainLeft = document.getElementById('curtainLeft');
+    const curtainRight = document.getElementById('curtainRight');
+    const safeWarmGlow = document.getElementById('safeWarmGlow');
+    const lampBulbIcon = document.getElementById('lampBulbIcon');
+    const dangerBanner = document.getElementById('dangerBanner');
+    const safeBanner = document.getElementById('safeBanner');
+    const manualControlsCard = document.getElementById('manualControlsCard');
+
+    // Format minutes into 24-hr time string "HH:MM"
+    function formatTime(minutes) {
+      const h = Math.floor(minutes / 60);
+      const m = Math.floor(minutes % 60);
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    // Calculate Sun/Moon Position
+    function computeCelestialPosition(hour) {
+      let isDay = hour >= 6 && hour <= 18;
+      let normT = isDay ? (hour - 6) / 12 : (hour > 18 ? (hour - 18) / 12 : (hour + 6) / 12);
+      
+      const angle = Math.PI - (normT * Math.PI);
+      const posXPercent = 50 - Math.cos(angle) * 40;
+      const posYPercent = 70 - Math.sin(angle) * 55;
+
+      return { isDay, left: `${posXPercent}%`, top: `${posYPercent}%` };
+    }
+
+    // Set System Mode (Auto vs Manual)
+    function setSystemMode(mode) {
+      state.mode = mode;
+      const btnAuto = document.getElementById('btnAutoMode');
+      const btnManual = document.getElementById('btnManualMode');
+
+      if (mode === 'auto') {
+        btnAuto.className = "px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-sky-600 shadow-sm transition-colors";
+        btnManual.className = "px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors";
+        manualControlsCard.classList.add('hidden');
+        evaluateCurtainState();
+      } else {
+        btnManual.className = "px-4 py-1.5 rounded-lg text-sm font-bold bg-white text-sky-600 shadow-sm transition-colors";
+        btnAuto.className = "px-4 py-1.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors";
+        manualControlsCard.classList.remove('hidden');
+      }
+    }
+
+    // Manual Override
+    function manualCurtain(close) {
+      if (state.mode === 'manual') applyCurtainPhysicalState(close);
+    }
+
+    // Evaluate Auto Mode Rule (08:00 to 17:00 = Danger)
+    function evaluateCurtainState() {
+      if (state.mode !== 'auto') return;
+      const isCriticalUV = state.minutes >= 480 && state.minutes <= 1020;
+      applyCurtainPhysicalState(isCriticalUV);
+    }
+
+    // Apply UI Changes for Curtains and Lights
+    function applyCurtainPhysicalState(isClosed) {
+      state.curtainsClosed = isClosed;
+
+      if (isClosed) {
+        curtainLeft.style.width = '50%';
+        curtainRight.style.width = '50%';
+        safeWarmGlow.style.opacity = '1';
+        lampBulbIcon.className = 'fa-solid fa-lightbulb text-[10px] text-amber-400 drop-shadow-[0_0_5px_#f59e0b]';
+        
+        dangerBanner.classList.remove('hidden');
+        safeBanner.classList.add('hidden');
+      } else {
+        curtainLeft.style.width = '0%';
+        curtainRight.style.width = '0%';
+        safeWarmGlow.style.opacity = '0';
+        lampBulbIcon.className = 'fa-solid fa-lightbulb text-[10px] text-amber-500/50';
+        
+        dangerBanner.classList.add('hidden');
+        safeBanner.classList.remove('hidden');
+      }
+    }
+
+    // Main Slider Event
+    function onTimeSliderChange(val) {
+      state.minutes = parseInt(val, 10);
+      const hour = state.minutes / 60;
+
+      // Update Text
+      digitalClockDisplay.textContent = formatTime(state.minutes);
+
+      // Move Sun/Moon
+      const pos = computeCelestialPosition(hour);
+      celestialBody.style.left = pos.left;
+      celestialBody.style.top = pos.top;
+
+      if (pos.isDay) {
+        sunGraphic.classList.remove('hidden');
+        moonGraphic.classList.add('hidden');
+        starsLayer.style.opacity = '0';
+      } else {
+        sunGraphic.classList.add('hidden');
+        moonGraphic.classList.remove('hidden');
+        starsLayer.style.opacity = '0.7';
+      }
+
+      // Update Sky Colors
+      if (hour < 5 || hour > 20) {
+        skyBackground.className = "absolute inset-0 transition-colors duration-700 bg-gradient-to-b from-slate-900 to-indigo-950";
+      } else if (hour >= 5 && hour < 7) {
+        skyBackground.className = "absolute inset-0 transition-colors duration-700 bg-gradient-to-b from-indigo-800 via-rose-300 to-amber-200";
+      } else if (hour >= 7 && hour < 17) {
+        skyBackground.className = "absolute inset-0 transition-colors duration-700 bg-gradient-to-b from-sky-400 via-sky-200 to-amber-50";
+      } else {
+        skyBackground.className = "absolute inset-0 transition-colors duration-700 bg-gradient-to-b from-indigo-900 via-orange-400 to-amber-300";
+      }
+
+      evaluateCurtainState();
+    }
+
+    // Start App
+    window.addEventListener('DOMContentLoaded', () => {
+      onTimeSliderChange(720); // Start at 12:00 PM
+    });
+  </script>
+</body>
+</html>
